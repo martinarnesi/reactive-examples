@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 class PersonRepositoryImplTest {
   PersonRepositoryImpl personRepository;
@@ -28,16 +29,24 @@ class PersonRepositoryImplTest {
   @Test
   void getByIdSubscribe() {
     Mono<Person> personMono = personRepository.getById(1);
-    personMono.subscribe(person -> System.out.println(person));
+
+    StepVerifier.create(personMono)
+        .expectNextCount(1)
+        .verifyComplete();
+
+    personMono.subscribe(System.out::println);
   }
 
   @Test
   void getByIdMap() {
-    Mono<Person> personMono = personRepository.getById(1);
+    Mono<String> map = personRepository.getById(1)
+        .map(person -> person.getFirstName());
 
-    personMono
-        .map(person -> person.getFirstName())
-        .subscribe(firstName -> System.out.println(firstName));
+    map.subscribe(firstName -> System.out.println(firstName));
+
+    StepVerifier.create(map)
+        .expectNextCount(1)
+        .verifyComplete();
   }
 
   @Test
@@ -58,6 +67,9 @@ class PersonRepositoryImplTest {
       System.out.println(person.toString());
     });
 
+    StepVerifier.create(allFlux)
+        .expectNextCount(3)
+        .verifyComplete();
   }
 
   @Test
@@ -70,6 +82,10 @@ class PersonRepositoryImplTest {
       list.forEach(person ->
           System.out.println(person.getLastName()));
     });
+
+    StepVerifier.create(allFlux)
+        .expectNextCount(3)
+        .verifyComplete();
   }
 
   @Test
@@ -81,6 +97,10 @@ class PersonRepositoryImplTest {
     Mono<Person> personMono = allFlux.filter(person -> person.getId() == id).next();
 
     personMono.subscribe( person -> System.out.println(person));
+
+    StepVerifier.create(allFlux)
+        .expectNextCount(3)
+        .verifyComplete();
 
   }
 
@@ -94,6 +114,9 @@ class PersonRepositoryImplTest {
 
     personMono.subscribe(person -> System.out.println(person));
 
+    StepVerifier.create(allFlux)
+        .expectNextCount(3)
+        .verifyComplete();
   }
 
   @Test
