@@ -1,6 +1,7 @@
 package com.example.reactiveexamples.repository;
 
 import com.example.reactiveexamples.domain.Person;
+import java.util.Objects;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -11,8 +12,8 @@ public class PersonRepositoryImpl implements PersonRepository {
   Person opy = new Person(3, "Cristian", "Oppido");
 
   @Override
-  public Mono<Person> getById(Integer id) {
-    return Mono.just(fara);
+  public Mono<Person> getById(final Integer id) {
+    return findAll().filter(person -> Objects.equals(person.getId(), id)).next();
   }
 
   @Override
